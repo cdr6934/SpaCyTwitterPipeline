@@ -4,6 +4,7 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 import CRUD.DatabaseOperations as do
 import CRUD.FileOperations as fo
+from elasticsearch import Elasticsearch
 import json
 import spacy
 import keys
@@ -44,6 +45,13 @@ class StdOutListener(StreamListener):
         #for entity in doc.ents:
         #    print(entity.text, entity.label_)
 
+
+
+        # ignore 400 cause by IndexAlreadyExistsException when creating an index
+        #es.indices.create(index='test-twitter', ignore=400)
+
+        es.index(index='test-twitter', doc_type='post', body=data)
+
         for token in doc:
             print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
                   token.shape_, token.is_alpha, token.is_stop)
@@ -58,6 +66,7 @@ class StdOutListener(StreamListener):
 
 
 if __name__ == '__main__':
+    es = Elasticsearch()
 
     #This handles Twitter authetification and the connection to Twitter Streaming API
     l = StdOutListener()
